@@ -1,13 +1,10 @@
-import HeroSection from "./Hero";
-import InvestmentPlans from "./InvestmentPlans";
-import AboutUs from "./AboutUs";
-
+import { ProductDemo, AboutUs, InvestmentPlans, HeroSection } from "./";
 
 const Home: React.FC = () => {
-
   return (
     <>
       <HeroSection />
+      <ProductDemo />
       <InvestmentPlans />
       <AboutUs />
     </>

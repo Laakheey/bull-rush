@@ -11,6 +11,7 @@ import Loading from "./Loading";
 import UserProfileSync from "./UserProfileSync";
 import AdminPanel from "./AdminPanel";
 import AdminChatWidget from "./AdminChatWidget";
+import ProductDemo from "./ProductDemo";
 
 export {
     Navbar,
@@ -25,6 +26,7 @@ export {
     Loading,
     UserProfileSync,
     AdminPanel,
-    AdminChatWidget
+    AdminChatWidget,
+    ProductDemo
 }
 
