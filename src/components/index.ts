@@ -10,6 +10,7 @@ import Dashboard from "./dashboard/Dashboard";
 import Loading from "./Loading";
 import UserProfileSync from "./UserProfileSync";
 import AdminPanel from "./AdminPanel";
+import AdminChatWidget from "./AdminChatWidget";
 
 export {
     Navbar,
@@ -23,6 +24,7 @@ export {
     Dashboard,
     Loading,
     UserProfileSync,
-    AdminPanel
+    AdminPanel,
+    AdminChatWidget
 }
 

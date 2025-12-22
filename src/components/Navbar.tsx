@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, Settings, LayoutDashboard } from "lucide-react"; // Added LayoutDashboard icon
+import { Menu, X, LayoutDashboard, MessageCircle } from "lucide-react";
 import {
   SignedIn,
   SignedOut,
@@ -41,11 +41,19 @@ const Navbar: React.FC = () => {
           <div className="hidden md:flex items-center space-x-8">
             <SignedIn>
               <Link
-                to="/dashboard"
+                to="/user/dashboard"
                 className="text-gray-700 hover:text-indigo-600 font-medium transition flex items-center space-x-2"
               >
                 <LayoutDashboard className="h-5 w-5" />
                 <span>Dashboard</span>
+              </Link>
+
+              <Link
+                to="/user/chat"
+                className="text-gray-700 hover:text-indigo-600 font-medium transition flex items-center space-x-2"
+              >
+                <MessageCircle className="h-5 w-5" />
+                <span>Chat</span>
               </Link>
 
               <UserButton
@@ -121,14 +129,14 @@ const Navbar: React.FC = () => {
               </Link>
 
               {/* Settings */}
-              <Link
+              {/* <Link
                 to="/settings"
                 onClick={closeMobileMenu}
                 className="flex items-center w-full p-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition-all"
               >
                 <Settings className="h-5 w-5 mr-3" />
                 <span className="font-medium">Settings</span>
-              </Link>
+              </Link> */}
             </SignedIn>
 
             <SignedOut>

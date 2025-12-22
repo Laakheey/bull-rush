@@ -14,6 +14,7 @@ import {
   SignUpPage,
 } from "./components/index.ts";
 import { SupabaseProvider } from "./components/providers/SupabaseProvider.tsx";
+import { AdminChatWidget } from "./components";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -35,10 +36,24 @@ function ProtectedDashboard() {
   return <Dashboard />;
 }
 
+function ProtectedChatBox() {
+  const { isLoaded, isSignedIn } = useAuth();
+
+  if (!isLoaded) {
+    return <Loading />;
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn />;
+  }
+
+  return <AdminChatWidget />;
+}
+
 function ProtectedAdmin() {
   const { isLoaded, isSignedIn, userId } = useAuth();
   const ADMIN_USER_IDS = [`${import.meta.env.VITE_ADMIN_ID}`];
-  
+
   if (!isLoaded) return <Loading />;
   if (!isSignedIn) return <RedirectToSignIn />;
   if (!userId || !ADMIN_USER_IDS.includes(userId)) {
@@ -75,6 +90,10 @@ const router = createBrowserRouter([
       {
         path: "admin/adminPanel",
         element: <ProtectedAdmin />,
+      },
+      {
+        path: "user/chat",
+        element: <ProtectedChatBox />,
       },
     ],
   },
