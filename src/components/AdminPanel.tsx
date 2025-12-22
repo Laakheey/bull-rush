@@ -1,110 +1,24 @@
-// src/components/AdminPanel.tsx
-
-import { useState, useEffect } from "react";
-import { useSupabase } from "./providers/SupabaseProvider";
-import toast from "react-hot-toast";
-import { useUser } from "@clerk/clerk-react";
+import { useState } from "react";
+import { useAdminPanel } from "../hooks/useAdminPanel";
 import UserTransactionHistoryModal from "./UserTransactionHistoryModal";
 
-interface User {
-  id: string;
-  email: string | null;
-  first_name: string | null;
-  last_name: string | null;
-  token_balance: number;
-}
-
-const PAGE_SIZE = 20;
-
 export default function AdminPanel() {
-  const supabase = useSupabase();
-  const { user } = useUser();
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editAmount, setEditAmount] = useState<string>("");
+  const {
+    users,
+    loading,
+    currentPage,
+    totalPages,
+    totalUsers,
+    editingId,
+    setEditingId,
+    editAmount,
+    setEditAmount,
+    handleUpdateBalance,
+    handlePageChange,
+  } = useAdminPanel();
 
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalUsers, setTotalUsers] = useState(0);
-
-  // Modal state
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
-  const fetchUsers = async (page: number) => {
-    if (!supabase) return;
-
-    setLoading(true);
-
-    const from = (page - 1) * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
-
-    const { data, error, count } = await supabase
-      .from("users")
-      .select("id, email, first_name, last_name, token_balance", { count: "exact" })
-      .order("token_balance", { ascending: false })
-      .range(from, to);
-
-    if (error) {
-      toast.error("Failed to load users");
-      console.error(error);
-    } else {
-      setUsers(data || []);
-      setTotalUsers(count || 0);
-    }
-
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchUsers(currentPage);
-  }, [currentPage, supabase]);
-
-  const handleUpdateBalance = async (userId: string) => {
-    const amount = parseFloat(editAmount);
-    if (isNaN(amount) || amount < 0) {
-      toast.error("Enter a valid positive number");
-      return;
-    }
-
-    const { error } = await supabase!
-      .from("users")
-      .update({ token_balance: amount })
-      .eq("id", userId);
-
-    if (error) {
-      toast.error("Update failed");
-    } else {
-      toast.success("Balance updated!");
-      const oldBalance = users.find((u) => u.id === userId)?.token_balance || 0;
-      const difference = amount - oldBalance;
-
-      await supabase!.from("transactions").insert({
-        user_id: userId,
-        amount: Math.abs(difference),
-        type: difference >= 0 ? "reward" : "withdrawal", // Use allowed types
-        description: `Admin adjusted balance ${difference >= 0 ? "+" : ""}${difference} tokens`,
-        reference_type: "admin_adjust",
-      });
-
-      setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, token_balance: amount } : u))
-      );
-      setEditingId(null);
-      setEditAmount("");
-    }
-  };
-
-  const totalPages = Math.ceil(totalUsers / PAGE_SIZE);
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
-  if (!user) return null;
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const PAGE_SIZE = 20;
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
@@ -135,13 +49,9 @@ export default function AdminPanel() {
                           <div className="font-medium">
                             {u.first_name || "—"} {u.last_name || ""}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            ID: {u.id.slice(-8)}
-                          </div>
+                          <div className="text-sm text-gray-500">ID: {u.id.slice(-8)}</div>
                         </td>
-                        <td className="px-6 py-5 text-gray-600">
-                          {u.email || "—"}
-                        </td>
+                        <td className="px-6 py-5 text-gray-600">{u.email || "—"}</td>
                         <td className="px-6 py-5 text-center">
                           <span className="px-4 py-2 bg-green-100 text-green-800 rounded-full font-bold text-lg">
                             {u.token_balance.toLocaleString()}
@@ -201,7 +111,6 @@ export default function AdminPanel() {
               </div>
             </div>
 
-            {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
                 <p className="text-gray-600">
@@ -214,31 +123,29 @@ export default function AdminPanel() {
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50"
                   >
                     Previous
                   </button>
 
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={`w-10 h-10 rounded-lg transition ${
-                          page === currentPage
-                            ? "bg-purple-600 text-white"
-                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`w-10 h-10 rounded-lg ${
+                        page === currentPage
+                          ? "bg-purple-600 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
 
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50"
                   >
                     Next
                   </button>

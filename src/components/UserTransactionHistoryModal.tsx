@@ -1,152 +1,147 @@
-import { format } from "date-fns";
-import { useUserTransactions } from "../hooks/useUserTransactions";
-import type { Transaction } from "../hooks/useUserTransactions";
+// src/components/UserTransactionHistoryModal.tsx
 
-interface UserTransactionHistoryModalProps {
-  user: {
-    id: string;
-    first_name: string | null;
-    last_name: string | null;
-    email: string | null;
-  } | null;
+import React from "react";
+import { useUserHistory } from "../hooks/useUserHistory";
+
+interface User {
+  id: string;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+}
+
+interface Props {
+  user: User | null;
   onClose: () => void;
 }
 
-export default function UserTransactionHistoryModal({
-  user,
-  onClose,
-}: UserTransactionHistoryModalProps) {
-  const { transactions, loading } = useUserTransactions(user?.id || null);
+const UserTransactionHistoryModal: React.FC<Props> = ({ user, onClose }) => {
+  const {
+    items,
+    loading,
+    filter,
+    setFilter,
+    searchHash,
+    setSearchHash,
+    refetch,
+  } = useUserHistory(user?.id || null);
 
   if (!user) return null;
 
-  // Helper function to determine if transaction adds or removes tokens
-  const isCredit = (type: Transaction["type"]) => {
-    return type === "purchase" || type === "reward";
-  };
-
-  const getTransactionIcon = (type: Transaction["type"]) => {
-    switch (type) {
-      case "purchase":
-        return "💳";
-      case "investment_deposit":
-        return "📈";
-      case "withdrawal":
-        return "💸";
-      case "reward":
-        return "⭐";
-      default:
-        return "💰";
-    }
-  };
-
-  const getTransactionColor = (type: Transaction["type"]) => {
-    if (isCredit(type)) return "text-green-600";
-    return "text-red-600";
-  };
-
-  const getTransactionBadgeColor = (type: Transaction["type"]) => {
-    if (isCredit(type)) return "bg-green-100 text-green-800";
-    return "bg-red-100 text-red-800";
-  };
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-8">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex justify-between items-start">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Transaction History
-              </h2>
-              <p className="text-gray-600 mt-1">
-                {user.first_name || ""} {user.last_name || ""}{" "}
-                {user.first_name || user.last_name ? "•" : ""} {user.email}
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-3xl leading-none"
-              aria-label="Close"
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="p-6 border-b flex justify-between items-center">
+          <h2 className="text-2xl font-bold">
+            History — {user.first_name || user.email || "User"} ({user.id.slice(-8)})
+          </h2>
+          <button onClick={onClose} className="text-3xl text-gray-500 hover:text-gray-700">
+            ×
+          </button>
+        </div>
+
+        <div className="p-6 border-b bg-gray-50">
+          <div className="flex flex-col lg:flex-row gap-4 items-center">
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as any)}
+              className="px-4 py-3 border rounded-lg"
             >
-              ×
+              <option value="all">All Transactions & Activity</option>
+              <option value="token_purchases">Token Purchases Only</option>
+              <option value="investments">Investments Only</option>
+            </select>
+
+            <input
+              type="text"
+              placeholder="Search by transaction hash..."
+              value={searchHash}
+              onChange={(e) => setSearchHash(e.target.value)}
+              className="flex-1 px-4 py-3 border rounded-lg"
+            />
+
+            <button
+              onClick={refetch}
+              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Search
             </button>
           </div>
         </div>
 
-        {/* Body */}
-        <div className="p-6 max-h-96 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600 mx-auto"></div>
-              <p className="mt-4 text-gray-500">Loading transactions...</p>
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
             </div>
-          ) : transactions.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No transactions yet</p>
-              <p className="text-sm text-gray-400 mt-2">
-                This user has no recorded activity.
-              </p>
-            </div>
+          ) : items.length === 0 ? (
+            <p className="text-center py-20 text-gray-500">No records found</p>
           ) : (
-            <div className="space-y-4">
-              {transactions.map((tx: Transaction) => (
-                <div
-                  key={tx.id}
-                  className="flex items-center justify-between p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`text-2xl font-bold ${getTransactionColor(tx.type)}`}
-                      >
-                        {isCredit(tx.type) ? "+" : "–"}
-                        {Math.abs(tx.amount).toLocaleString()}
+            <table className="w-full">
+              <thead className="bg-gray-100 sticky top-0">
+                <tr>
+                  <th className="px-6 py-4 text-left">Date</th>
+                  <th className="px-6 py-4 text-left">Type</th>
+                  <th className="px-6 py-4 text-left">Amount</th>
+                  <th className="px-6 py-4 text-left">Status</th>
+                  <th className="px-6 py-4 text-left">Plan/Description</th>
+                  <th className="px-6 py-4 text-left">Tx Hash</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {items.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm">
+                      {new Date(item.created_at).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        item.source === "token_request" ? "bg-blue-100 text-blue-800" :
+                        item.source === "investment" ? "bg-indigo-100 text-indigo-800" :
+                        "bg-gray-100 text-gray-800"
+                      }`}>
+                        {item.type.replace("_", " ").toUpperCase()}
                       </span>
-                      <span className="text-sm text-gray-500">tokens</span>
-                    </div>
-                    <p className="text-gray-700 mt-1">
-                      {tx.description || `Transaction: ${tx.type}`}
-                    </p>
-                    {tx.plan_type && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Plan: {tx.plan_type}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="text-right ml-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg">{getTransactionIcon(tx.type)}</span>
-                      <div
-                        className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getTransactionBadgeColor(tx.type)}`}
-                      >
-                        {tx.type.replace(/_/g, " ").toUpperCase()}
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      {format(new Date(tx.created_at), "MMM dd, yyyy")}
-                      <br />
-                      {format(new Date(tx.created_at), "HH:mm")}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    </td>
+                    <td className="px-6 py-4 font-medium text-green-600">
+                      +{item.amount.toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      {item.status ? (
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          item.status === "approved" ? "bg-green-100 text-green-800" :
+                          item.status === "conflicted" ? "bg-orange-100 text-orange-800" :
+                          item.status === "pending" ? "bg-yellow-100 text-yellow-800" :
+                          "bg-gray-100 text-gray-800"
+                        }`}>
+                          {item.status}
+                        </span>
+                      ) : "—"}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      {item.plan_type ? `Plan: ${item.plan_type}` : item.description || "—"}
+                    </td>
+                    <td className="px-6 py-4 font-mono text-xs">
+                      {item.tx_hash ? (
+                        <a
+                          href={`https://nile.tronscan.org/#/transaction/${item.tx_hash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-purple-600 hover:underline"
+                        >
+                          {item.tx_hash.slice(0, 12)}...
+                        </a>
+                      ) : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-6 border-t border-gray-200">
-          <button
-            onClick={onClose}
-            className="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-xl transition"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default UserTransactionHistoryModal;

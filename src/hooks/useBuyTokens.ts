@@ -25,7 +25,6 @@ export function useBuyTokens() {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        debugger
       const { error: uploadError } = await supabase.storage
         .from('payment-proofs')
         .upload(fileName, file);

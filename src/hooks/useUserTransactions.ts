@@ -1,118 +1,61 @@
-// import { useState, useEffect } from "react";
-// import { useSupabase } from "../components/providers/SupabaseProvider";
-// import toast from "react-hot-toast";
-
-// export interface Transaction {
-//   id: string;
-//   amount_tokens: number;
-//   type: "credit" | "debit";
-//   description: string;
-//   created_at: string;
-// }
-
-// export function useUserTransactions(userId: string | null) {
-//   const supabase = useSupabase();
-//   const [transactions, setTransactions] = useState<Transaction[]>([]);
-//   const [loading, setLoading] = useState(false);
-
-//   const fetchTransactions = async (id: string) => {
-//     if (!supabase) return;
-
-//     setLoading(true);
-//     const { data, error } = await supabase
-//       .from("transactions")
-//       .select("id, amount, type, plan_type, created_at")
-//       .eq("user_id", id)
-//       .order("created_at", { ascending: false });
-
-//     if (error) {
-//       toast.error("Failed to load transaction history");
-//       console.error(error);
-//       setTransactions([]);
-//     } else {
-//       setTransactions(data || []);
-//     }
-//     setLoading(false);
-//   };
-
-//   useEffect(() => {
-//     if (userId) {
-//       fetchTransactions(userId);
-//     } else {
-//       setTransactions([]);
-//     }
-//   }, [userId, supabase]);
-
-//   return {
-//     transactions,
-//     loading,
-//     refetch: () => userId && fetchTransactions(userId),
-//   };
-// }
-
 import { useState, useEffect } from "react";
 import { useSupabase } from "../components/providers/SupabaseProvider";
 import toast from "react-hot-toast";
 
-// Updated interface to match your actual DB schema
-export interface Transaction {
-  id: string;
-  amount: number;                    // DB column is "amount" (double precision)
-  type: "purchase" | "investment_deposit" | "withdrawal" | "reward";
-  plan_type: string | null;
+interface Transaction {
+  id: number;
+  user_id: string;
+  amount: number;
+  type: string;
   description: string | null;
+  reference_type: string | null;
+  status: string | null;
+  tx_hash: string | null;
   created_at: string;
 }
 
-export function useUserTransactions(userId: string | null) {
+export const useUserTransactions = (userId: string | null) => {
   const supabase = useSupabase();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchHash, setSearchHash] = useState("");
 
-  const fetchTransactions = async (id: string) => {
-    if (!supabase) {
-      setTransactions([]);
-      return;
-    }
+  const fetchTransactions = async () => {
+    if (!supabase || !userId) return;
 
     setLoading(true);
 
-    const { data, error } = await supabase
+    let query = supabase
       .from("transactions")
-      .select("id, amount, type, plan_type, description, created_at")
-      .eq("user_id", id)
+      .select("*")
+      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
+    if (searchHash) {
+      query = query.ilike("tx_hash", `%${searchHash}%`);
+    }
+
+    const { data, error } = await query;
+
     if (error) {
-      console.error("Failed to fetch transactions:", error);
-      toast.error("Failed to load transaction history");
-      setTransactions([]);
+      toast.error("Failed to load history");
+      console.error(error);
     } else {
-      // Type assertion is safe because we selected matching columns
-      setTransactions((data || []) as Transaction[]);
+      setTransactions(data || []);
     }
 
     setLoading(false);
   };
 
   useEffect(() => {
-    if (userId) {
-      fetchTransactions(userId);
-    } else {
-      setTransactions([]);
-      setLoading(false);
-    }
-  }, [userId, supabase]);
-
-  const refetch = () => {
-    if (userId) {
-      fetchTransactions(userId);
-    }
-  };
+    if (userId) fetchTransactions();
+  }, [userId, searchHash]);
 
   return {
     transactions,
     loading,
-    refetch,
+    searchHash,
+    setSearchHash,
+    refetch: fetchTransactions,
   };
-}
+};
