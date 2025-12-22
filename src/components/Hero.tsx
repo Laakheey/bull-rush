@@ -8,7 +8,7 @@ const HeroSection: React.FC = () => {
       <div className="relative container mx-auto px-4 py-20 md:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            Grow Your Money with
+            Grow Your finances with
             <span className="block text-yellow-300">
               High-Yield Token Investments
             </span>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, LayoutDashboard, MessageCircle } from "lucide-react";
+import { Menu, X, LayoutDashboard } from "lucide-react";
 import {
   SignedIn,
   SignedOut,
@@ -48,14 +48,6 @@ const Navbar: React.FC = () => {
                 <span>Dashboard</span>
               </Link>
 
-              <Link
-                to="/user/chat"
-                className="text-gray-700 hover:text-indigo-600 font-medium transition flex items-center space-x-2"
-              >
-                <MessageCircle className="h-5 w-5" />
-                <span>Chat</span>
-              </Link>
-
               <UserButton
                 appearance={{
                   elements: {
@@ -97,7 +89,6 @@ const Navbar: React.FC = () => {
         <div className="md:hidden bg-white border-t border-gray-100 shadow-inner">
           <div className="px-4 py-4 space-y-4">
             <SignedIn>
-              {/* User Profile Card */}
               <div className="bg-gray-50 rounded-xl p-4">
                 <div className="flex items-center space-x-4">
                   <UserButton
@@ -118,7 +109,6 @@ const Navbar: React.FC = () => {
                 </div>
               </div>
 
-              {/* Dashboard Link */}
               <Link
                 to="/dashboard"
                 onClick={closeMobileMenu}
@@ -127,16 +117,6 @@ const Navbar: React.FC = () => {
                 <LayoutDashboard className="h-6 w-6 mr-3" />
                 <span className="text-lg">Dashboard</span>
               </Link>
-
-              {/* Settings */}
-              {/* <Link
-                to="/settings"
-                onClick={closeMobileMenu}
-                className="flex items-center w-full p-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition-all"
-              >
-                <Settings className="h-5 w-5 mr-3" />
-                <span className="font-medium">Settings</span>
-              </Link> */}
             </SignedIn>
 
             <SignedOut>
