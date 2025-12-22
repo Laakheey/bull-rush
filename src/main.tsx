@@ -22,6 +22,13 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key");
 }
 
+declare global {
+  interface Window {
+    tronWeb?: any;
+    tronLink?: any;
+  }
+}
+
 function ProtectedDashboard() {
   const { isLoaded, isSignedIn } = useAuth();
 
