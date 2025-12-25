@@ -10,7 +10,7 @@ export function useInvest() {
 
   const invest = async (
     amount: number,
-    plan: 'monthly' | 'fixed',
+    plan: "monthly" | "half-yearly" | "yearly", // Updated type union
     currentBalance: number,
     mutate: () => Promise<void>,
     onSuccess?: () => Promise<void>
@@ -36,7 +36,6 @@ export function useInvest() {
         .single();
 
       if (invError) throw invError;
-
       investmentId = invData.id;
 
       // 2. Deduct from user balance
@@ -48,32 +47,39 @@ export function useInvest() {
 
       if (balError) throw balError;
 
-      // 3. Log transaction using allowed type 'investment_deposit'
+      // 3. Log transaction
+      // Dynamic description based on the new plans
+      const planLabel = 
+        plan === 'monthly' ? 'Monthly' : 
+        plan === 'half-yearly' ? '6-Month' : 'Yearly';
+
       const { error: txError } = await supabase.from('transactions').insert({
         user_id: user.id,
-        type: 'investment_deposit', // ← Must be one of the allowed values
+        type: 'investment_deposit',
         amount: amount,
         plan_type: plan,
         investment_id: investmentId,
-        description: `Invested ${amount.toLocaleString()} tokens in ${plan === 'monthly' ? 'Monthly' : 'Fixed'} plan`,
+        description: `Invested ${amount.toLocaleString()} tokens in ${planLabel} plan`,
         reference_id: null,
       });
 
-      if (txError) {
-        console.error('Failed to log transaction:', txError);
-        // Don't fail the whole investment if logging fails
-      }
+      if (txError) console.error('Failed to log transaction:', txError);
 
       // 4. Refresh UI
       await mutate();
       if (onSuccess) await onSuccess();
 
-      const planMessage =
-        plan === 'fixed'
-          ? `${amount.toLocaleString()} tokens invested! Locked for 1 year with 3x return`
-          : `${amount.toLocaleString()} tokens invested! Withdraw every 15 days`;
+      // 5. Dynamic Success Message
+      let successMsg = "";
+      if (plan === 'monthly') {
+        successMsg = `${amount.toLocaleString()} tokens invested! 10% monthly rewards started.`;
+      } else if (plan === 'half-yearly') {
+        successMsg = `${amount.toLocaleString()} tokens locked! 1.75x return in 6 months.`;
+      } else {
+        successMsg = `${amount.toLocaleString()} tokens locked! 3x return in 1 year.`;
+      }
 
-      toast.success(planMessage);
+      toast.success(successMsg);
       return true;
     } catch (error: any) {
       console.error('Investment error:', error);

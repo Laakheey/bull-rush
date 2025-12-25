@@ -1,6 +1,7 @@
 import React from "react";
 import { Shield, Users, TrendingUp, Zap, Globe, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
+import image from '/assets/financial growth.jpg'
 
 const AboutUs: React.FC = () => {
   return (
@@ -157,9 +158,9 @@ const AboutUs: React.FC = () => {
               </p>
               <div className="rounded-xl overflow-hidden">
                 <img
-                  src="https://media.istockphoto.com/id/1248262649/photo/success-business-chart-with-green-arrow-up-and-usa-dollars-background-profit-and-money.jpg?s=1024x1024&w=is&k=20&c=T4iwT80lKscxcJ7GlWG0flhBYcysmZ_Htf6NrdNM-dI="
+                  src={image}
                   alt="Financial growth chart with upward arrow"
-                  className="w-full h-64 object-cover rounded-lg"
+                  className="w-full h-64 object-fit rounded-lg"
                 />
               </div>
             </div>

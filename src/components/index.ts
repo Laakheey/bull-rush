@@ -9,9 +9,10 @@ import AboutUs from "./AboutUs";
 import Dashboard from "./dashboard/Dashboard";
 import Loading from "./Loading";
 import UserProfileSync from "./UserProfileSync";
-import AdminPanel from "./AdminPanel";
+import AdminPanel from "../admin/AdminPanel";
 import AdminChatWidget from "./AdminChatWidget";
 import ProductDemo from "./ProductDemo";
+import CheckActiveStatus from "./CheckActive";
 
 export {
     Navbar,
@@ -27,6 +28,7 @@ export {
     UserProfileSync,
     AdminPanel,
     AdminChatWidget,
-    ProductDemo
+    ProductDemo,
+    CheckActiveStatus
 }
 

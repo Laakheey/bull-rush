@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const USDT_CONTRACT_ADDRESS = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"; // Nile Testnet
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+// const API_URL_DEV = import.meta.env.VITE_API_URL_DEV || "http://localhost:5001";
+const USDT_CONTRACT_ADDRESS = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
 
 interface PendingPayment {
   requestId: number;
@@ -34,9 +35,9 @@ export const usePaymentFlow = () => {
     }
   }, []);
 
-  // Detect TronLink
   useEffect(() => {
     const check = () => {
+      
       if (window.tronWeb && window.tronWeb.ready) {
         setTronWeb(window.tronWeb);
       }
@@ -62,10 +63,9 @@ export const usePaymentFlow = () => {
       toast.error("Please sign in first");
       return false;
     }
-
     const numAmount = parseFloat(amount);
-    if (numAmount < 100) {
-      toast.error("Minimum 100 USDT required");
+    if (numAmount < 0) {
+      toast.error("Please enter an amount");
       return false;
     }
 

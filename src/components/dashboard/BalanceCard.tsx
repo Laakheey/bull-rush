@@ -1,4 +1,6 @@
 import { useUser } from "@clerk/clerk-react";
+import { AlertTriangle } from "lucide-react"; // Add this import
+import Loading from "../Loading";
 
 interface BalanceCardProps {
   balance: number;
@@ -8,7 +10,9 @@ interface BalanceCardProps {
 const BalanceCard: React.FC<BalanceCardProps> = ({ balance, isLoaded }) => {
   const { user } = useUser();
 
-  if (!isLoaded || !user) return;
+  if (!isLoaded || !user) return <Loading/>;
+
+  const showWarning = balance > 1;
 
   return (
     <div className="relative my-12 overflow-hidden rounded-3xl bg-linear-to-br from-indigo-900 via-purple-900 to-pink-900 p-1 shadow-2xl">
@@ -74,6 +78,16 @@ const BalanceCard: React.FC<BalanceCardProps> = ({ balance, isLoaded }) => {
               <p className="text-2xl md:text-3xl text-yellow-400 mt-4 font-bold">
                 Tokens
               </p>
+
+              {/* Warning Badge - appears only when balance > 1 */}
+              {showWarning && (
+                <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-yellow-900/60 border border-yellow-500/40 rounded-xl text-yellow-300 text-sm font-medium backdrop-blur-sm">
+                  <AlertTriangle size={18} className="text-yellow-400" />
+                  <span>
+                    Please invest in one of the plans to start earning.
+                  </span>
+                </div>
+              )}
             </div>
 
             <img

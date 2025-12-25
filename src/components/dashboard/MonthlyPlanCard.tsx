@@ -8,27 +8,37 @@ interface MonthlyPlanCardProps {
   onInvestmentSuccess?: () => Promise<void>;
 }
 
-const MonthlyPlanCard: React.FC<MonthlyPlanCardProps> = ({ currentBalance, mutate, onInvestmentSuccess }) => {
+const MonthlyPlanCard: React.FC<MonthlyPlanCardProps> = ({
+  currentBalance,
+  mutate,
+  onInvestmentSuccess,
+}) => {
   const [amount, setAmount] = useState("");
   const { invest, loading } = useInvest();
 
   const handleInvest = async () => {
     const num = parseFloat(amount);
-    if (!num || num <= 0) {
-      toast.error("Please enter a valid amount");
-      return;
-    }
-    if (num < 100) {
-      toast.error("Minimum investment is 100 tokens");
-      return;
-    }
-    if (num > currentBalance) {
-      toast.error("Insufficient balance in your wallet");
+
+    if (isNaN(num) || num < 10) {
+      toast.error("Minimum investment is 10 USDT");
       return;
     }
 
-    await invest(num, 'monthly', currentBalance, mutate, onInvestmentSuccess);
+    if (num > currentBalance) {
+      toast.error("Insufficient balance");
+      return;
+    }
+
+    await invest(num, "monthly", currentBalance, mutate, onInvestmentSuccess);
     setAmount("");
+  };
+
+  const handleMax = () => {
+    if (currentBalance >= 10) {
+      setAmount(currentBalance.toString());
+    } else {
+      toast.error("Balance is below the minimum 10 USDT");
+    }
   };
 
   return (
@@ -62,24 +72,27 @@ const MonthlyPlanCard: React.FC<MonthlyPlanCardProps> = ({ currentBalance, mutat
           <div className="relative">
             <input
               type="number"
-              placeholder="0.00"
+              placeholder="Min. 10 USDT"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               disabled={loading}
               className="w-full px-5 py-4 bg-white/10 border-2 border-white/20 rounded-2xl text-white placeholder:text-white/40 outline-none focus:border-white/50 focus:bg-white/20 transition text-xl font-semibold"
             />
-            <button 
-              onClick={() => setAmount(currentBalance.toString())}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold bg-white text-green-600 px-2 py-1 rounded hover:bg-green-50"
+            <button
+              onClick={handleMax}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold bg-white text-green-600 px-2 py-1 rounded hover:bg-green-50 transition"
             >
               MAX
             </button>
           </div>
+          <p className="text-xs mt-2 text-green-100 opacity-70">
+            Min investment: 10 USDT
+          </p>
         </div>
 
         <button
           onClick={handleInvest}
-          disabled={loading || !amount}
+          disabled={loading || !amount || parseFloat(amount) < 10}
           className="w-full py-5 bg-white text-green-700 text-xl font-extrabold rounded-2xl shadow-lg hover:bg-green-50 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:active:scale-100"
         >
           {loading ? (

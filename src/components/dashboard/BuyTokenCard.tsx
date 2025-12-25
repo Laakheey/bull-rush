@@ -6,7 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Toaster } from "react-hot-toast";
 import { usePaymentFlow } from "../../hooks/usePaymentFlow"; // Adjust path
 
-const BuyTokensCardTest: React.FC = () => {
+const BuyTokensCard: React.FC = () => {
   const {
     amount,
     setAmount,
@@ -112,4 +112,4 @@ const BuyTokensCardTest: React.FC = () => {
   );
 };
 
-export default BuyTokensCardTest;
+export default BuyTokensCard;

@@ -19,7 +19,7 @@ export async function logTransaction({
   referenceId,
   referenceType,
 }: LogTransactionParams) {
-  const supabase = useSupabase(); // Note: This won't work directly in utils
+  const supabase = useSupabase();
 
   if (!supabase) return;
 

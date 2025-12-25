@@ -5,16 +5,10 @@ import App from "./App.tsx";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./components/Home.tsx";
-import { ClerkProvider, RedirectToSignIn, useAuth } from "@clerk/clerk-react";
-import {
-  AdminPanel,
-  Dashboard,
-  Loading,
-  SignInPage,
-  SignUpPage,
-} from "./components/index.ts";
+import { ClerkProvider } from "@clerk/clerk-react";
+import { AdminPanel, Dashboard } from "./components/index.ts";
 import { SupabaseProvider } from "./components/providers/SupabaseProvider.tsx";
-import { AdminChatWidget } from "./components";
+import { AuthGuard } from "./components/AuthGuard.tsx";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -29,82 +23,30 @@ declare global {
   }
 }
 
-function ProtectedDashboard() {
-  const { isLoaded, isSignedIn } = useAuth();
-
-  if (!isLoaded) {
-    return <Loading />;
-  }
-
-  if (!isSignedIn) {
-    return <RedirectToSignIn />;
-  }
-
-  return <Dashboard />;
-}
-
-function ProtectedChatBox() {
-  const { isLoaded, isSignedIn } = useAuth();
-
-  if (!isLoaded) {
-    return <Loading />;
-  }
-
-  if (!isSignedIn) {
-    return <RedirectToSignIn />;
-  }
-
-  return <AdminChatWidget />;
-}
-
-function ProtectedAdmin() {
-  const { isLoaded, isSignedIn, userId } = useAuth();
-  const ADMIN_USER_IDS = [`${import.meta.env.VITE_ADMIN_ID}`];
-
-  if (!isLoaded) return <Loading />;
-  if (!isSignedIn) return <RedirectToSignIn />;
-  if (!userId || !ADMIN_USER_IDS.includes(userId)) {
-    return (
-      <div className="p-8 text-center text-red-600">
-        Access Denied: Admins Only
-      </div>
-    );
-  }
-
-  return <AdminPanel />;
-}
-
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
       { index: true, element: <Home /> },
-      { path: "sign-in", element: <SignInPage /> },
-      { path: "sign-up", element: <SignUpPage /> },
-      {
-        path: "user/dashboard",
-        element: <ProtectedDashboard />,
-      },
-      {
-        path: "user",
-        element: <ProtectedDashboard />,
-      },
       {
         path: "dashboard",
-        element: <ProtectedDashboard />,
+        element: (
+          <AuthGuard>
+            <Dashboard />
+          </AuthGuard>
+        ),
       },
       {
         path: "admin/adminPanel",
-        element: <ProtectedAdmin />,
-      },
-      {
-        path: "user/chat",
-        element: <ProtectedChatBox />,
+        element: (
+          <AuthGuard requireAdmin>
+            <AdminPanel />
+          </AuthGuard>
+        ),
       },
     ],
   },
-  { path: "*", element: <div>404 - Page Not Found</div> },
 ]);
 
 createRoot(document.getElementById("root")!).render(
