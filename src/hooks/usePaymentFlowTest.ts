@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
 
-const API_URL = import.meta.env.VITE_API_URL_DEV;
+const API_URL = import.meta.env.VITE_API_URL;
 
 export type InvestmentPlan = "monthly" | "half-yearly" | "yearly";
 

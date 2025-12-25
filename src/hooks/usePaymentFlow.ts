@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
-// const API_URL_DEV = import.meta.env.VITE_API_URL_DEV || "http://localhost:5001";
+const API_URL = import.meta.env.VITE_API_URL;
 const USDT_CONTRACT_ADDRESS = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf";
 
 interface PendingPayment {

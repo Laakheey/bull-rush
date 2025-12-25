@@ -126,7 +126,7 @@ import toast from "react-hot-toast";
 
 const PAGE_SIZE = 20;
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL_DEV || "http://localhost:3000";
+  import.meta.env.VITE_API_URL;
 
 interface User {
   id: string;
