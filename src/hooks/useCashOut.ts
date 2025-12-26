@@ -21,7 +21,7 @@ export const useCashOut = ({ onSuccess }: UseCashOutProps = {}) => {
     if (!walletAddress.trim()) return toast.error("Enter wallet address");
 
     const numAmount = Number(amount);
-    debugger
+
     setLoading(true);
     try {
       const token = await getToken();

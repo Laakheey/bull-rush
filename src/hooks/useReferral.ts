@@ -35,11 +35,9 @@ export function useReferral() {
   const [loading, setLoading] = useState(true);
   const [hasReferrer, setHasReferrer] = useState(false);
   
-  // Add ref to track if component is mounted
   const isMountedRef = useRef(true);
 
   useEffect(() => {
-    // Set mounted to true
     isMountedRef.current = true;
 
     async function fetchData() {
@@ -55,7 +53,7 @@ export function useReferral() {
           .eq("id", user.id)
           .single();
 
-        if (!isMountedRef.current) return; // Check if still mounted
+        if (!isMountedRef.current) return;
 
         if (userError) {
           console.error("Error fetching user data:", userError);
@@ -66,27 +64,24 @@ export function useReferral() {
         setMyReferralCode(userData?.referral_code || user.id);
         if (userData?.referrer_id) setHasReferrer(true);
 
-        // Fetch downline tree
         const { data: treeData, error: treeError } = await supabase.rpc("get_downline_tree", {
           root_user_id: user.id,
         });
 
-        if (!isMountedRef.current) return; // Check if still mounted
+        if (!isMountedRef.current) return;
 
         if (treeError) {
           console.error("Error fetching tree:", treeError);
         } else {
-            debugger
           setDownline(treeData || null);
         }
 
-        // Fetch bonuses
         const { data: bonusData, error: bonusError } = await supabase
           .from("referral_bonuses")
           .select("amount, bonus_type")
           .eq("referrer_id", user.id);
 
-        if (!isMountedRef.current) return; // Check if still mounted
+        if (!isMountedRef.current) return;
 
         if (bonusError) {
           console.error("Error fetching bonuses:", bonusError);

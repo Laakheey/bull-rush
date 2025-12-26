@@ -27,7 +27,7 @@ export const useAdminWithdrawals = () => {
 
       const wdData = await wdRes.json();
       const walletData = await walletRes.json();
-      debugger
+
       setWithdrawals(wdData.withdrawals || []);
       setWallets(walletData.wallets || []);
     } catch (err) {
@@ -41,7 +41,7 @@ export const useAdminWithdrawals = () => {
     if (status === "approved" && !selectedWallet) {
       return toast.error("Select a payout wallet first");
     }
-    debugger;
+    
     try {
       const token = await getToken();
       const res = await fetch(`${API_URL}/api/withdrawal/process`, {

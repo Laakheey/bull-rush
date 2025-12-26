@@ -311,7 +311,6 @@ export const useAdminPanel = () => {
       fetchUsers(1);
       return;
     }
-    debugger
     setLoading(true);
     try {
       const token = await getToken();
