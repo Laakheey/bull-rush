@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, LayoutDashboard } from "lucide-react";
+import { Menu, X, LayoutDashboard, ShieldCheck } from "lucide-react";
 import {
   SignedIn,
   SignedOut,
@@ -9,10 +9,13 @@ import {
   UserButton,
   useUser,
 } from "@clerk/clerk-react";
+import { useSupabase } from "./providers/SupabaseProvider";
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isLoaded } = useUser();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const supabase = useSupabase();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -21,6 +24,20 @@ const Navbar: React.FC = () => {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+
+  useEffect(() => {
+    async function checkAdminStatus() {
+      if (isLoaded && user && supabase) {
+        const { data } = await supabase
+          .from("users")
+          .select("is_admin")
+          .eq("id", user.id)
+          .single();
+        setIsAdmin(data?.is_admin || false);
+      }
+    }
+    checkAdminStatus();
+  }, [isLoaded, user, supabase]);
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -38,6 +55,15 @@ const Navbar: React.FC = () => {
 
           <div className="hidden md:flex items-center space-x-8">
             <SignedIn>
+              {isAdmin && (
+                <Link
+                  to="/admin/adminPanel"
+                  className="text-red-600 hover:bg-red-50 px-3 py-2 rounded-md font-bold transition flex items-center space-x-2 border border-red-200"
+                >
+                  <ShieldCheck className="h-5 w-5" />
+                  <span>Admin Panel</span>
+                </Link>
+              )}
               <Link
                 to="/dashboard"
                 className="text-gray-700 hover:text-indigo-600 font-medium transition flex items-center space-x-2"
@@ -104,6 +130,17 @@ const Navbar: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {isAdmin && (
+                <Link
+                  to="/admin/adminPanel"
+                  onClick={closeMobileMenu}
+                  className="flex items-center w-full p-4 bg-red-50 text-red-700 rounded-lg font-bold hover:bg-red-100 transition border border-red-100"
+                >
+                  <ShieldCheck className="h-6 w-6 mr-3" />
+                  <span className="text-lg">Admin Panel</span>
+                </Link>
+              )}
 
               <Link
                 to="/dashboard"

@@ -6,7 +6,12 @@ import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./components/Home.tsx";
 import { ClerkProvider } from "@clerk/clerk-react";
-import { AdminPanel, Dashboard } from "./components/index.ts";
+import {
+  AdminPanel,
+  Dashboard,
+  SignInPage,
+  SignUpPage,
+} from "./components/index.ts";
 import { SupabaseProvider } from "./components/providers/SupabaseProvider.tsx";
 import { AuthGuard } from "./components/AuthGuard.tsx";
 
@@ -44,6 +49,14 @@ const router = createBrowserRouter([
             <AdminPanel />
           </AuthGuard>
         ),
+      },
+      {
+        path: "sign-in",
+        element: <SignInPage />,
+      },
+      {
+        path: "sign-up",
+        element: <SignUpPage />,
       },
     ],
   },

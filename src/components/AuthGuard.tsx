@@ -3,6 +3,7 @@ import { RedirectToSignIn, useAuth } from "@clerk/clerk-react";
 import { useSupabase } from "./providers/SupabaseProvider";
 import { useEffect, useState } from "react";
 import Loading from "./Loading";
+// import { Navigate } from "react-router-dom";
 
 interface Props {
   children: React.ReactNode;

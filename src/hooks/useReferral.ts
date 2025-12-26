@@ -64,10 +64,10 @@ export function useReferral() {
         setMyReferralCode(userData?.referral_code || user.id);
         if (userData?.referrer_id) setHasReferrer(true);
 
-        const { data: treeData, error: treeError } = await supabase.rpc("get_downline_tree", {
+        const { data: treeData, error: treeError } = await supabase.rpc("get_downline_tree_v2", {
           root_user_id: user.id,
         });
-
+        
         if (!isMountedRef.current) return;
 
         if (treeError) {
@@ -110,7 +110,6 @@ export function useReferral() {
 
     fetchData();
 
-    // Cleanup function
     return () => {
       isMountedRef.current = false;
     };
@@ -136,7 +135,6 @@ export function useReferral() {
         toast.success(data.message, { duration: 4000 });
         setHasReferrer(true);
         
-        // Refresh data to show updated bonuses
         window.location.reload();
         return true;
       } else {
