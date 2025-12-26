@@ -5,7 +5,7 @@ const GrowthView = lazy(() => import("./GrowthPage"));
 const UserSupportChat = lazy(() => import("./SupportPage"));
 
 const SupportAndGrowthHome: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"growth" | "support">("support");
+  const [activeTab, setActiveTab] = useState<"growth" | "support">("growth");
 
   return (
     <div className="flex flex-col md:flex-row gap-8 min-h-150 animate-in slide-in-from-bottom-4 duration-500">
