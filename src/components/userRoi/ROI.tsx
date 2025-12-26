@@ -12,7 +12,6 @@ const ROIPage: React.FC = () => {
       <div className="container mx-auto max-w-6xl">
         <h1 className="text-3xl font-black text-gray-900 mb-8">ROI Portfolio</h1>
 
-        {/* Stats - only rewards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           <StatCard title="Total Rewards" value={stats.total} color="text-indigo-600" />
           <StatCard title="Monthly Rewards" value={stats.monthly} color="text-green-600" />
@@ -104,8 +103,8 @@ const ROIPage: React.FC = () => {
                     <td className="px-8 py-5 text-sm text-gray-500 font-mono">
                       {wd.wallet_address?.slice(0, 6) + '...' + wd.wallet_address?.slice(-4) || '-'}
                     </td>
-                    <td className="px-8 py-5 text-right font-black text-red-600">
-                      -{Number(wd.amount).toLocaleString()} USDT
+                    <td className="px-8 py-5 text-right font-black text-green-600">
+                      +{Number(wd.amount).toLocaleString()} USDT
                     </td>
                   </tr>
                 ))}
